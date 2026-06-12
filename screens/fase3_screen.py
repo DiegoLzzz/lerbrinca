@@ -14,9 +14,14 @@ class LogicaScreen:
         self.estado = estado
         self.tick = 0
 
-        self.FONT_BIG = pygame.font.SysFont("Impact", 56, bold=True)
-        self.FONT_MED = pygame.font.SysFont("Impact", 42, bold=True)
-        self.FONT_SM = pygame.font.SysFont("Impact", 28)
+        # ── Fontes mais legíveis (Arial bold no lugar de Impact) ──────────────
+        # Impact é estreita e difícil de ler para crianças.
+        # Arial bold é ampla, clara e disponível em todos os sistemas.
+        self.FONT_BIG = pygame.font.SysFont("Arial", 52, bold=True)
+        self.FONT_MED = pygame.font.SysFont("Arial", 40, bold=True)
+        self.FONT_SM  = pygame.font.SysFont("Arial", 24, bold=True)
+        # Fonte extra para os botões de resposta — tamanho maior para facilitar leitura
+        self.FONT_BTN = pygame.font.SysFont("Arial", 44, bold=True)
 
         self.bg = self.cores["cinza_esc"]
 
@@ -53,7 +58,7 @@ class LogicaScreen:
         # botão voltar
         self.btn_voltar = LegoButton(40, self.H - 70, 200, 46,
                                      "◀ VOLTAR AO MAPA", self.cores["cinza_med"],
-                                     pygame.font.SysFont("Impact", 20), studs=1)
+                                     pygame.font.SysFont("Arial", 20, bold=True), studs=1)
 
         # estado do quiz
         self.reset_quiz()
@@ -76,10 +81,10 @@ class LogicaScreen:
             return
         item = self.seq[self.index]
         etapa = self.state
-        
+
         # Cores LEGO para alternância
         cores_btns = [self.cores["vermelho"], self.cores["azul"], self.cores["amarelo"]]
-        
+
         if etapa == "pergunta1":
             correto = len(item["nome"])
             opts = self._num_options(correto)
@@ -87,7 +92,7 @@ class LogicaScreen:
                 bx = 160 + i * 300
                 cor = cores_btns[i % len(cores_btns)]
                 self.buttons.append(LegoButton(bx, 480, 240, 90, str(val), cor,
-                                             pygame.font.SysFont("Impact", 42, bold=True), studs=1))
+                                               self.FONT_BTN, studs=1))
         elif etapa == "pergunta2":
             correto = item["nome"][0]
             opts = self._letter_options(correto)
@@ -95,7 +100,7 @@ class LogicaScreen:
                 bx = 160 + i * 240
                 cor = cores_btns[i % len(cores_btns)]
                 self.buttons.append(LegoButton(bx, 480, 240, 90, val.upper(), cor,
-                                             pygame.font.SysFont("Impact", 42, bold=True), studs=1))
+                                               self.FONT_BTN, studs=1))
         elif etapa == "pergunta3":
             correto = item["patas"]
             opts = self._num_options(correto)
@@ -103,7 +108,7 @@ class LogicaScreen:
                 bx = 160 + i * 300
                 cor = cores_btns[i % len(cores_btns)]
                 self.buttons.append(LegoButton(bx, 480, 240, 90, str(val), cor,
-                                             pygame.font.SysFont("Impact", 42, bold=True), studs=1))
+                                               self.FONT_BTN, studs=1))
 
     def _num_options(self, correto):
         opts = {correto}
@@ -162,7 +167,7 @@ class LogicaScreen:
                     prev = 2
                 else:
                     try:
-                        if int(self.buttons[0].texto) == len(self.seq[self.index]["nome"]):  # LegoButton usa 'texto'
+                        if int(self.buttons[0].texto) == len(self.seq[self.index]["nome"]):
                             prev = 1
                         else:
                             prev = 3
@@ -178,35 +183,44 @@ class LogicaScreen:
                 else:
                     self.index += 1
                     if self.index >= len(self.seq):
-                        # fim -> voltar ao mapa
                         self.estado["tela_atual"] = "mapa"
                     else:
                         self.state = "pergunta1"
                         self.prepare_question()
                 self.feedback = None
 
+    def _draw_text_with_shadow(self, font, texto, cor_texto, x, y, shadow_offset=3):
+        """Desenha texto com sombra escura para melhor contraste."""
+        sombra = font.render(texto, True, (0, 0, 0))
+        principal = font.render(texto, True, cor_texto)
+        self.surf.blit(sombra, (x + shadow_offset, y + shadow_offset))
+        self.surf.blit(principal, (x, y))
+
+    def _draw_text_centered(self, font, texto, cor_texto, cy, shadow_offset=3):
+        """Desenha texto centralizado horizontalmente com sombra."""
+        principal = font.render(texto, True, cor_texto)
+        x = self.W // 2 - principal.get_width() // 2
+        self._draw_text_with_shadow(font, texto, cor_texto, x, cy, shadow_offset)
+
     def draw(self):
         self.surf.fill(self.bg)
-        
-        # Título com sombra
-        title = self.FONT_BIG.render("🐾 QUIZ DE ANIMAIS", True, (255, 255, 255))
-        title_sombra = self.FONT_BIG.render("🐾 QUIZ DE ANIMAIS", True, (0, 0, 0))
-        self.surf.blit(title_sombra, (42, 26))
-        self.surf.blit(title, (40, 24))
-        
-        # Pontuação
-        score_txt = self.FONT_SM.render(f"Pontos: {self.pontos}", True, (255, 255, 255))
-        score_sombra = self.FONT_SM.render(f"Pontos: {self.pontos}", True, (0, 0, 0))
-        self.surf.blit(score_sombra, (42, 92))
-        self.surf.blit(score_txt, (40, 90))
+
+        # ── Título ──────────────────────────────────────────────────────────────
+        self._draw_text_with_shadow(self.FONT_BIG, "QUIZ DE ANIMAIS",
+                                    (255, 255, 100), 40, 24)
+
+        # ── Pontuação ───────────────────────────────────────────────────────────
+        self._draw_text_with_shadow(self.FONT_SM, f"Pontos: {self.pontos}",
+                                    (255, 255, 255), 40, 95)
 
         if self.index < len(self.seq):
             item = self.seq[self.index]
-            # Painel com imagem do animal
+
+            # ── Painel da imagem do animal ───────────────────────────────────────
             box = pygame.Rect(80, 140, 440, 300)
-            pygame.draw.rect(self.surf, (220, 220, 220), box, border_radius=12)
-            pygame.draw.rect(self.surf, (100, 100, 100), box, 2, border_radius=12)
-            
+            pygame.draw.rect(self.surf, (235, 235, 235), box, border_radius=14)
+            pygame.draw.rect(self.surf, (80, 80, 80), box, 3, border_radius=14)
+
             img_path = os.path.join(self.ANIMALS_DIR, f"{item['nome']}.png")
             if os.path.exists(img_path):
                 try:
@@ -217,47 +231,55 @@ class LogicaScreen:
                     self.surf.blit(img, (box.x + 10, box.y + 10))
                 except Exception:
                     txt = self.FONT_MED.render(item["nome"].capitalize(), True, (30, 30, 30))
-                    self.surf.blit(txt, (box.centerx - txt.get_width() // 2, box.centery - txt.get_height() // 2))
+                    self.surf.blit(txt, (box.centerx - txt.get_width() // 2,
+                                        box.centery - txt.get_height() // 2))
             else:
                 txt = self.FONT_BIG.render(item["nome"].capitalize(), True, (30, 30, 30))
-                self.surf.blit(txt, (box.centerx - txt.get_width() // 2, box.centery - txt.get_height() // 2))
+                self.surf.blit(txt, (box.centerx - txt.get_width() // 2,
+                                     box.centery - txt.get_height() // 2))
 
-            # Pergunta com sombra
-            if self.state == "pergunta1":
-                qtxt = self.FONT_MED.render("Quantas letras tem o nome?", True, (255, 255, 255))
-                qtxt_sombra = self.FONT_MED.render("Quantas letras tem o nome?", True, (0, 0, 0))
-                self.surf.blit(qtxt_sombra, (602, 202))
-                self.surf.blit(qtxt, (600, 200))
-            elif self.state == "pergunta2":
-                qtxt = self.FONT_MED.render("Qual é a primeira letra?", True, (255, 255, 255))
-                qtxt_sombra = self.FONT_MED.render("Qual é a primeira letra?", True, (0, 0, 0))
-                self.surf.blit(qtxt_sombra, (602, 202))
-                self.surf.blit(qtxt, (600, 200))
-            elif self.state == "pergunta3":
-                qtxt = self.FONT_MED.render("Quantas patas ele possui?", True, (255, 255, 255))
-                qtxt_sombra = self.FONT_MED.render("Quantas patas ele possui?", True, (0, 0, 0))
-                self.surf.blit(qtxt_sombra, (602, 202))
-                self.surf.blit(qtxt, (600, 200))
+            # ── Caixa da pergunta (painel com fundo escuro p/ contraste) ─────────
+            if self.state in ("pergunta1", "pergunta2", "pergunta3"):
+                perguntas = {
+                    "pergunta1": "Quantas letras tem o nome?",
+                    "pergunta2": "Qual é a primeira letra?",
+                    "pergunta3": "Quantas patas ele possui?",
+                }
+                texto_pergunta = perguntas[self.state]
 
-        # feedback
+                # Renderiza para calcular largura real
+                surf_p = self.FONT_MED.render(texto_pergunta, True, (255, 255, 255))
+                px = 560
+                py = 210
+                pad_x, pad_y = 18, 12
+                painel = pygame.Rect(px - pad_x, py - pad_y,
+                                     surf_p.get_width() + pad_x * 2,
+                                     surf_p.get_height() + pad_y * 2)
+                # Fundo semitransparente para a pergunta
+                overlay = pygame.Surface((painel.width, painel.height), pygame.SRCALPHA)
+                overlay.fill((0, 0, 0, 160))
+                self.surf.blit(overlay, (painel.x, painel.y))
+                pygame.draw.rect(self.surf, (255, 255, 100), painel, 3, border_radius=10)
+
+                self._draw_text_with_shadow(self.FONT_MED, texto_pergunta,
+                                            (255, 255, 255), px, py, shadow_offset=2)
+
+        # ── Feedback ────────────────────────────────────────────────────────────
         if self.state == "feedback":
-            t = pygame.time.get_ticks() - self.feedback_t0
             if self.feedback == "acerto" and self.IMG_ACERTO:
                 self.surf.blit(self.IMG_ACERTO, (300, 180))
             elif self.feedback == "erro" and self.IMG_ERRO:
                 self.surf.blit(self.IMG_ERRO, (300, 180))
             else:
                 msg = "✓ ACERTO!" if self.feedback == "acerto" else "✗ ERRO"
-                c = (52, 211, 153) if self.feedback == "acerto" else (239, 68, 68)
-                ttxt = self.FONT_BIG.render(msg, True, c)
-                ttxt_sombra = self.FONT_BIG.render(msg, True, (0, 0, 0))
-                self.surf.blit(ttxt_sombra, (self.W // 2 - ttxt.get_width() // 2 + 2, self.H // 2 - ttxt.get_height() // 2 + 2))
-                self.surf.blit(ttxt, (self.W // 2 - ttxt.get_width() // 2, self.H // 2 - ttxt.get_height() // 2))
+                cor = (52, 211, 153) if self.feedback == "acerto" else (239, 68, 68)
+                self._draw_text_centered(self.FONT_BIG, msg, cor,
+                                         self.H // 2 - self.FONT_BIG.get_height() // 2)
 
-        # desenhar botões
+        # ── Botões de resposta ───────────────────────────────────────────────────
         if self.state != "feedback":
             for b in self.buttons:
                 b.draw(self.surf)
 
-        # botão voltar
+        # ── Botão voltar ─────────────────────────────────────────────────────────
         self.btn_voltar.draw(self.surf)

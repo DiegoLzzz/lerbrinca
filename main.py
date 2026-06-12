@@ -6,10 +6,17 @@ from screens.cadastro_screen import CadastroScreen
 from screens.mapa_screen import MapaScreen
 from screens.fase1_screen import Fase1Screen
 from screens.fase2_screen import Fase2Screen
+from screens.fase3_screen import LogicaScreen
 from screens.fase4_screen import Fase4Screen
+from screens.fase5_screen import Fase5Screen
+from screens.fase6_screen import Fase6Screen
+from screens.fase7_screen import Fase7Screen
+from screens.fase8_screen import Fase8Screen
+from screens.fase9_screen import Fase9Screen
+from screens.fase10_screen import Fase10Screen
 from screens.fase_screen import FaseScreen
 from screens.perfil_screen import PerfilScreen
-from screens.logica_screen import LogicaScreen
+
 
 # ── Configurações gerais ──────────────────────────────────────────────────────
 LARGURA, ALTURA = 1100, 700
@@ -56,8 +63,15 @@ def main():
         "fase_2":   Fase2Screen(tela, LARGURA, ALTURA, CORES, estado),
         "fase_3":   LogicaScreen(tela, LARGURA, ALTURA, CORES, estado),
         "fase_4":   Fase4Screen(tela, LARGURA, ALTURA, CORES, estado),
+        "fase_5":   Fase5Screen(tela, LARGURA, ALTURA, CORES, estado),
+        "fase_6":   Fase6Screen(tela, LARGURA, ALTURA, CORES, estado),
+        "fase_7":   Fase7Screen(tela, LARGURA, ALTURA, CORES, estado),
+        "fase_8":   Fase8Screen(tela, LARGURA, ALTURA, CORES, estado),
+        "fase_9":   Fase9Screen(tela, LARGURA, ALTURA, CORES, estado),
+        "fase_10":   Fase10Screen(tela, LARGURA, ALTURA, CORES, estado),
     }
-    for i in range(5, 11):
+
+    for i in range(11, 11):
         telas[f"fase_{i}"] = FaseScreen(tela, LARGURA, ALTURA, CORES, estado, i)
 
     rodando = True

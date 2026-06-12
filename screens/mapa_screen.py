@@ -5,7 +5,7 @@ from ui_components import draw_lego_brick, draw_panel, LegoButton
 
 # Posições dos blocos no mapa (ajustadas à imagem 1100x700)
 POSICOES_FASES = [
-    (174, 282),   # Fase 1  - verde  canto superior esq
+    (155, 195),   # Fase 1  - verde  canto superior esq
     (328, 230),   # Fase 2  - azul
     (502, 200),   # Fase 3  - laranja
     (690, 235),   # Fase 4  - amarelo
