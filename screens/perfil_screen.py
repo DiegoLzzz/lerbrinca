@@ -19,7 +19,7 @@ class PerfilScreen:
         self.tick = 0
 
         # Fontes
-        self.f_titulo  = pygame.font.SysFont("Impact",    42, bold=True)
+        self.f_titulo = pygame.font.SysFont("Segoe UI", 36, bold=True)
         self.f_nome    = pygame.font.SysFont("Arial",     26, bold=True)
         self.f_nivel   = pygame.font.SysFont("Arial",     18, bold=True)
         self.f_label   = pygame.font.SysFont("Segoe UI",  17, bold=True)
@@ -78,16 +78,78 @@ class PerfilScreen:
         uid      = usuario.get("uid", "—")
         avatar   = usuario.get("avatar", "masculino")   # campo salvo no login
 
-        # ── Título ────────────────────────────────────────────────────────────
-        titulo      = self.f_titulo.render("Perfil do Jogador", True, (255, 255, 255))
-        tit_sombra  = self.f_titulo.render("Perfil do Jogador", True, (0, 0, 0))
-        self.surf.blit(tit_sombra, tit_sombra.get_rect(centerx=self.W // 2 + 2, top=22))
-        self.surf.blit(titulo,     titulo.get_rect(centerx=self.W // 2,     top=20))
+        # ── Cabeçalho LEGO ────────────────────────────────────────────────────
+
+        header_w = 420
+        header_h = 60
+
+        header_x = self.W // 2 - header_w // 2
+        header_y = 15
+
+        # sombra
+        pygame.draw.rect(
+            self.surf,
+            (70, 70, 70),
+            (header_x + 4, header_y + 4, header_w, header_h),
+            border_radius=14
+        )
+
+        # corpo
+        pygame.draw.rect(
+            self.surf,
+            (255, 205, 0),
+            (header_x, header_y, header_w, header_h),
+            border_radius=14
+        )
+
+        # borda
+        pygame.draw.rect(
+            self.surf,
+            (40, 40, 40),
+            (header_x, header_y, header_w, header_h),
+            3,
+            border_radius=14
+        )
+
+        # pinos LEGO
+        for i in range(8):
+            stud_x = header_x + 35 + i * 50
+
+            pygame.draw.circle(
+                self.surf,
+                (235, 185, 0),
+                (stud_x, header_y + 10),
+                7
+            )
+
+            pygame.draw.circle(
+                self.surf,
+                (255, 225, 50),
+                (stud_x, header_y + 7),
+                7
+            )
+
+        # texto
+        titulo = self.f_titulo.render(
+            "👤 PERFIL DO JOGADOR",
+            True,
+            (40, 40, 40)
+        )
+
+        self.surf.blit(
+            titulo,
+            titulo.get_rect(
+                center=(
+                    header_x + header_w // 2,
+                    header_y + header_h // 2 + 4
+                )
+            )
+        )
 
         # ── Card principal ────────────────────────────────────────────────────
         card_w, card_h = 780, 430
         card_x = self.W // 2 - card_w // 2
-        card_y = 80
+        card_y = 95
         self._draw_card(card_x, card_y, card_w, card_h)
 
         # ── Coluna esquerda: avatar ───────────────────────────────────────────
